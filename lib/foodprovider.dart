@@ -174,9 +174,9 @@ class _FoodProviderPageState extends State<FoodProviderPage> {
               Text("User Profile", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               SizedBox(height: 10),
 
-              TextField(controller: _nameController, decoration: InputDecoration(labelText: "Full Name"), enabled: _isEditing),
-              TextField(controller: _emailController, decoration: InputDecoration(labelText: "Email"), enabled: false),
-              TextField(controller: _phoneController, decoration: InputDecoration(labelText: "Phone Number"), enabled: _isEditing),
+              TextField(controller: _nameController, style: TextStyle(color: Colors.white),decoration: InputDecoration(labelText: "Full Name"), enabled: _isEditing),
+              TextField(controller: _emailController,style: TextStyle(color: Colors.white), decoration: InputDecoration(labelText: "Email"), enabled: false),
+              TextField(controller: _phoneController,style: TextStyle(color: Colors.white), decoration: InputDecoration(labelText: "Phone Number"), enabled: _isEditing),
               SizedBox(height: 20),
 
               ElevatedButton(
@@ -195,11 +195,11 @@ class _FoodProviderPageState extends State<FoodProviderPage> {
               Text("Role: $_role", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 10),
               Text("Add Food Listing", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              TextField(controller: _foodNameController, decoration: InputDecoration(labelText: "Food Name")),
-              TextField(controller: _foodTypeController, decoration: InputDecoration(labelText: "Food Type")),
-              TextField(controller: _expiryDateController, decoration: InputDecoration(labelText: "Expiry Date")),
-              TextField(controller: _quantityController, decoration: InputDecoration(labelText: "Quantity")),
-              TextField(controller: _pickupLocationController, decoration: InputDecoration(labelText: "Pickup Location")),
+              TextField(controller: _foodNameController, style: TextStyle(color: Colors.white),decoration: InputDecoration(labelText: "Food Name")),
+              TextField(controller: _foodTypeController,style: TextStyle(color: Colors.white), decoration: InputDecoration(labelText: "Food Type")),
+              TextField(controller: _expiryDateController,style: TextStyle(color: Colors.white), decoration: InputDecoration(labelText: "Expiry Date")),
+              TextField(controller: _quantityController, style: TextStyle(color: Colors.white),decoration: InputDecoration(labelText: "Quantity")),
+              TextField(controller: _pickupLocationController, style: TextStyle(color: Colors.white),decoration: InputDecoration(labelText: "Pickup Location")),
               SizedBox(height: 10),
               ElevatedButton(onPressed: addFoodListing, child: Text("Submit Food Listing")),
 
@@ -209,7 +209,12 @@ class _FoodProviderPageState extends State<FoodProviderPage> {
               Text("Past Activities", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               pastActivities.isEmpty
                   ? Center(child: Text("No past activities found"))
-                  : Column(children: pastActivities.map((activity) => ListTile(title: Text(activity['title']), subtitle: Text("Date: ${activity['date']}"))).toList()),
+                  : Column(
+                      children: pastActivities.map((activity) => ListTile(
+                        title: Text(activity['title'], style: TextStyle(color: Colors.white)),
+                        subtitle: Text("Date: ${activity['date']}", style: TextStyle(color: Colors.white)),
+                      )).toList(),
+                    ),
             ],
           ),
         ),
