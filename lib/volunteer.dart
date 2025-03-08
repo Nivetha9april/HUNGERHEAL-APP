@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'moving_vehicle.dart'; // Ensure this file exists
+import 'volunteer_map.dart'; // Ensure this file exists
 
 class VolunteerPage extends StatefulWidget {
   @override
@@ -61,7 +61,8 @@ class _VolunteerPageState extends State<VolunteerPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MovingVehicleMap(orderDetails: deliveries[index]),
+                      builder: (context) => MovingVehicleMap(),
+
                     ),
                   );
                 },
@@ -84,3 +85,4 @@ class _VolunteerPageState extends State<VolunteerPage> {
     );
   }
 }
+
