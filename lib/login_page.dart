@@ -66,11 +66,11 @@ class _LoginPageState extends State<LoginPage> {
       if (name != null && role != null) {
         // ✅ Navigate to HomeScreen after login
         Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (context) => WelcomePage(), // No parameters
-  ),
-);
+          context,
+          MaterialPageRoute(
+            builder: (context) => WelcomePage(), // No parameters
+          ),
+        );
       } else {
         ScaffoldMessenger.of(
           context,
@@ -117,12 +117,20 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: "Email"),
+              style: TextStyle(color: Colors.white), // Changed text color to white
+              decoration: InputDecoration(
+                labelText: "Email",
+                labelStyle: TextStyle(color: Colors.white), // Label color to white
+              ),
             ),
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(labelText: "Password"),
+              style: TextStyle(color: Colors.white), // Changed text color to white
+              decoration: InputDecoration(
+                labelText: "Password",
+                labelStyle: TextStyle(color: Colors.white), // Label color to white
+              ),
             ),
             SizedBox(height: 10),
 
@@ -162,3 +170,5 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
+
