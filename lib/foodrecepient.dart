@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+//import 'dart:math';
+import 'moving_vehicle.dart';
 
 void main() {
   runApp(MaterialApp(home: FoodRecipientPage()));
@@ -13,7 +15,7 @@ class _FoodRecipientPageState extends State<FoodRecipientPage> {
   final List<Map<String, String>> availableFood = [
     {
       "food": "Rice & Curry",
-      "location": "Community Center",
+      "location": "Avadi",
       "type": "Vegetarian",
       "capacity": "Serves 3",
       "prepared": "Today 12:00 PM",
@@ -23,7 +25,7 @@ class _FoodRecipientPageState extends State<FoodRecipientPage> {
     },
     {
       "food": "Bread & Soup",
-      "location": "Food Bank",
+      "location": "Porur",
       "type": "Vegan",
       "capacity": "Serves 2",
       "prepared": "Today 3:00 PM",
@@ -31,18 +33,33 @@ class _FoodRecipientPageState extends State<FoodRecipientPage> {
       "provider": "Jane Smith",
       "organization": "Food for All"
     },
+    {
+      "food": "Briyani,chicken 65,mutton gravy",
+      "location": "Pallavaram",
+      "type": "Vegan",
+      "capacity": "Serves 2",
+      "prepared": "Today 3:00 PM",
+      "delivery": "Delivery",
+      "provider": "Jane Smith",
+      "organization": "Food for one"
+    },
+
+
   ];
 
-  int _selectedIndex = 0;
+  List<Map<String, String>> recommendedFood = [];
+  List<Map<String, String>> justInFood = [];
+  Map<String, String>? selectedItem;
 
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => ProfilePage()));
-    }
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _generateRecommendations();
+  }
+
+  void _generateRecommendations() {
+    recommendedFood = availableFood.where((food) => food["type"] == "Vegan").toList();
+    justInFood = availableFood.reversed.toList();
   }
 
   @override
@@ -52,61 +69,101 @@ class _FoodRecipientPageState extends State<FoodRecipientPage> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title:
-            Text("Available Food", style: TextStyle(color: Color(0xFFED254E))),
+        title: Text("Available Food", style: TextStyle(color: Color(0xFFED254E))),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications, color: Color(0xFFED254E)),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => NotificationPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationPage()));
             },
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: availableFood.length,
-        itemBuilder: (context, index) {
-          return Card(
-            color: Colors.grey[900],
-            margin: EdgeInsets.all(10),
-            child: ListTile(
-              title: Text(
-                availableFood[index]["food"]!,
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-              subtitle: Text("Location: ${availableFood[index]["location"]}",
-                  style: TextStyle(color: Colors.grey[400])),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFED254E)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          FoodDetailPage(foodData: availableFood[index]),
-                    ),
-                  );
-                },
-                child: Text('View', style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          );
-        },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.location_on), label: "Live Location"),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chatbot"),
+      body: ListView(
+        padding: EdgeInsets.all(10),
+        children: [
+          _buildSection("Just In", justInFood),
+          _buildSection("Recommended for You", recommendedFood),
+          if (selectedItem != null) _buildFinalDetails(selectedItem!),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildSection(String title, List<Map<String, String>> foodList) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: TextStyle(color: Color(0xFFED254E), fontSize: 20, fontWeight: FontWeight.bold)),
+        SizedBox(height: 10),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: foodList.length,
+          itemBuilder: (context, index) {
+            return Card(
+              color: Colors.grey[900],
+              margin: EdgeInsets.symmetric(vertical: 5),
+              child: ListTile(
+                title: Text(
+                  foodList[index]["food"]!,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                subtitle: Text("Location: ${foodList[index]["location"]}", style: TextStyle(color: Colors.grey[400])),
+                trailing: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFED254E)),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FoodDetailPage(
+                          foodData: foodList[index],
+                          onAddToCart: (selected) {
+                            setState(() {
+                              selectedItem = selected;
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                  child: Text('View', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFinalDetails(Map<String, String> food) {
+    return Card(
+      color: Colors.grey[850],
+      margin: EdgeInsets.all(10),
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Final Selection", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Text("Food: ${food["food"]}", style: TextStyle(color: Colors.white, fontSize: 16)),
+            Text("Location: ${food["location"]}", style: TextStyle(color: Colors.white, fontSize: 16)),
+            Text("Provider: ${food["provider"]}", style: TextStyle(color: Colors.white, fontSize: 16)),
+            SizedBox(height: 10),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFED254E)),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MovingVehicleMap(orderDetails: food)),
+                );
+              },
+              child: Text("Proceed", style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -115,8 +172,9 @@ class _FoodRecipientPageState extends State<FoodRecipientPage> {
 // Food Detail Page
 class FoodDetailPage extends StatelessWidget {
   final Map<String, String> foodData;
+  final Function(Map<String, String>) onAddToCart;
 
-  FoodDetailPage({required this.foodData});
+  FoodDetailPage({required this.foodData, required this.onAddToCart});
 
   @override
   Widget build(BuildContext context) {
@@ -125,95 +183,25 @@ class FoodDetailPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        title:
-            Text(foodData["food"]!, style: TextStyle(color: Color(0xFFED254E))),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFFED254E)),
-          onPressed: () => Navigator.pop(context),
-        ),
+        title: Text(foodData["food"]!, style: TextStyle(color: Color(0xFFED254E))),
       ),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 200,
-              width: double.infinity,
-              color: Colors.grey[700], // Grey Placeholder for Image
-              child: Center(
-                child: Text(
-                  "Food Image",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Text("Food Name: ${foodData["food"]}", style: foodDetailStyle),
-            Text("Food Type: ${foodData["type"]}", style: foodDetailStyle),
-            Text("Location: ${foodData["location"]}", style: foodDetailStyle),
-            Text("Prepared Time: ${foodData["prepared"]}",
-                style: foodDetailStyle),
-            Text("Serves: ${foodData["capacity"]}", style: foodDetailStyle),
-            Text("Delivery: ${foodData["delivery"]}", style: foodDetailStyle),
-            Text("Provider: ${foodData["provider"]}", style: foodDetailStyle),
-            Text("Organization: ${foodData["organization"]}",
-                style: foodDetailStyle),
+            Text("Food Name: ${foodData["food"]}", style: TextStyle(color: Colors.white, fontSize: 16)),
+            Text("Food Type: ${foodData["type"]}", style: TextStyle(color: Colors.white, fontSize: 16)),
+            Text("Location: ${foodData["location"]}", style: TextStyle(color: Colors.white, fontSize: 16)),
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFED254E)),
-                onPressed: () {},
-                child:
-                    Text("Add to Cart", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-TextStyle foodDetailStyle = TextStyle(color: Colors.white, fontSize: 16);
-
-// Profile Page with Input Boxes
-class ProfilePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        title: Text("Profile", style: TextStyle(color: Color(0xFFED254E))),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Color(0xFFED254E)),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ProfileField("Full Name"),
-            ProfileField("Phone Number"),
-            ProfileField("Email Address"),
-            ProfileField("Current Location"),
-            ProfileField("Availability (Days & Time)"),
-            ProfileField("Preferred Service Area"),
-            ProfileField("Mode of Transport"),
-            SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFED254E)),
                 onPressed: () {
+                  onAddToCart(foodData);
                   Navigator.pop(context);
                 },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFED254E)),
-                child: Text("Sign Out", style: TextStyle(color: Colors.white)),
+                child: Text("Add to Cart", style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
@@ -222,34 +210,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 }
-
-// Profile Input Field with Box
-class ProfileField extends StatelessWidget {
-  final String label;
-  ProfileField(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextField(
-        style: TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(color: Colors.grey[400]),
-          enabledBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-          focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFED254E))),
-          filled: true,
-          fillColor: Colors.grey[900],
-        ),
-      ),
-    );
-  }
-}
-
-// Notification Page
 class NotificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
